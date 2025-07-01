@@ -141,10 +141,10 @@ else
   require 'rake/extensiontask'
 
   unless RUBY_ENGINE == 'truffleruby'
-    Rake::ExtensionTask.new("json/ext/generator")
+    Rake::ExtensionTask.new("json/generator")
   end
 
-  Rake::ExtensionTask.new("json/ext/parser")
+  Rake::ExtensionTask.new("json/parser")
 
   UndocumentedTestTask.new do |t|
     t.name = :test
