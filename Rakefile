@@ -210,15 +210,22 @@ if defined?(RUBY_ENGINE) and RUBY_ENGINE == 'jruby'
 else
   require 'rake/extensiontask'
 
-  unless RUBY_ENGINE == 'truffleruby'
-    Rake::ExtensionTask.new("json/generator")
+  ext_libs = nil
+  path_fix = proc do |x|
+    ext_libs ||= x.lib_dir.chomp("/json")
+    x.lib_dir << "/ext"
   end
 
-  Rake::ExtensionTask.new("json/parser")
+  unless RUBY_ENGINE == 'truffleruby'
+    Rake::ExtensionTask.new("json/generator", &path_fix)
+  end
+
+  Rake::ExtensionTask.new("json/parser", &path_fix)
 
   UndocumentedTestTask.new do |t|
     t.name = :test
     t.test_files = FileList['test/json/*_test.rb']
+    t.libs.unshift(ext_libs)
     t.verbose = true
     t.options = '-v'
   end
@@ -230,6 +237,7 @@ else
     require "ruby_memcheck"
     RubyMemcheck::TestTask.new(valgrind: [ :compile, :test ]) do |t|
       t.test_files = FileList['test/json/*_test.rb']
+      t.libs.unshift(ext_libs)
       t.verbose = true
       t.options = '-v'
     end
